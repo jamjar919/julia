@@ -25,7 +25,7 @@ function dispComplex(c) {
 	if (c.imaginary >= 0) {
 		sign = '+';
 	}
-	return c.real + sign + c.imaginary + "i";
+	return Math.floor(c.real*1000)/1000 + sign + Math.floor(c.imaginary*1000)/1000 + "i";
 }
 
 function getComplexModulus(c) {

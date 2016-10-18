@@ -49,10 +49,13 @@
 		</form>
 		<br>
 		<p id="status" style="color: grey;">Idle</p>
+		<p>Drawn from <span id="fromNum"></span> to <span id="toNum"></span></p>
+		<p>Current mouse pos: <span id="xyPos"></span></p>
+		<p>Current mouse x,y: <span id="xyCoords"></span></p>
 	</div>
 	<div class="canvasWrapper">
 		<canvas id="juliaDraw" width=750 height=750 onClick="drawZoomJulia()"></canvas>
-		<canvas id="overlay" width=750 height=750></canvas>
+		<canvas id="overlay" width=750 height=750 oncontextmenu="return false;"></canvas>
 	</div>
 	<script src="complex.js"></script>
 	<script src="juliaset.js"></script>

@@ -13,6 +13,20 @@ var juliaImageData = CONTEXT.createImageData(WIDTH, HEIGHT);
 var CURRENTHIGHESTITERATIONS = 0;
 var CONVERGENCEITERCOUNT = 2500;
 var ITERALGO;
+var SCALEFACTOR = 1;
+var CURRENTXOFFSET = 0;
+var CURRENTYOFFSET = 0;
+_CANVAS.addEventListener('mousemove', function(evt) {
+	mousePos = getMousePos(_CANVAS, evt);
+}, false);
+
+function printCoords() {
+	document.getElementById("fromNum").innerHTML = dispComplex(coordsToComplex({x:0,y:0}));
+	document.getElementById("toNum").innerHTML = dispComplex(coordsToComplex({x:WIDTH,y:HEIGHT}));
+	document.getElementById("xyPos").innerHTML = dispComplex(coordsToComplex(mousePos));
+	document.getElementById("xyCoords").innerHTML = mousePos.x + "," + mousePos.y;
+}
+setInterval(printCoords, 10);
 
 function setState(state) {
 	indicator = document.getElementById("status");
@@ -100,6 +114,55 @@ function doesPointEscape(c, complexNum) {
 	return iterationsToEscape;
 }
 
+var drawSelectSquare = false;
+var point1 = null;
+var point2 = null;
+var drawSelectSquareInterval = 0;
+function drawBoundingBox() {
+	if (drawSelectSquare) {
+		_CONTEXT.clearRect(0, 0, WIDTH, HEIGHT);
+		_CONTEXT.strokeStyle = "#FFF";
+		var difference = 0;
+		if (mousePos.x > mousePos.y) {
+			difference = mousePos.x - point1.x;
+		} else {
+			difference = mousePos.y - point1.y;
+		}
+		_CONTEXT.beginPath();
+		_CONTEXT.rect(point1.x,point1.y,difference,difference);
+		_CONTEXT.stroke();
+	}
+}
+_CANVAS.addEventListener('contextmenu', function(ev) {
+    	ev.preventDefault();
+	document.getElementById('drawLines').checked = false;
+	_CONTEXT.clearRect(0, 0, WIDTH, HEIGHT);
+	if (drawSelectSquare) {
+		clearInterval(drawSelectSquareInterval);
+		if (mousePos.x > mousePos.y) {
+			difference = mousePos.x - point1.x;
+		} else {
+			difference = mousePos.y - point1.y;
+		}
+		point2 = {
+			x: point1.x + difference,
+			y: point1.y + difference
+		}
+		CURRENTXOFFSET = point1.x - difference;
+		CURRENTYOFFSET = point1.y - difference;
+		SCALEFACTOR = (difference/WIDTH)*SCALEFACTOR;
+		var c = new complexNum(readInput('realValue') * 1, readInput('imagValue') * 1,point1.x,point1.y);
+		plotJuliaSet(CANVAS, c, CURRENTXOFFSET, CURRENTYOFFSET);
+		drawSelectSquare = false;
+	} else{
+		point1 = mousePos;
+		drawSelectSquare = true;
+		drawSelectSquareInterval = setInterval(drawBoundingBox, 10);
+	}
+   	console.log(mousePos);
+  	return false;
+}, false);
+
 function getMousePos(canvas, evt) {
 	var rect = canvas.getBoundingClientRect();
 	return {
@@ -115,11 +178,9 @@ function getColor(iterations) {
 	return color;
 }
 
-function plotJuliaSet(canvasID, width, height, c, start, stepsize) {
-	var complexNumberArray = createArray(width + 1, height + 1);
-	var doesPointEscapeArray = createArray(width + 1, height + 1);
-	var real = start.real;
-	var imaginary = start.imaginary;
+function plotJuliaSet(canvasID, c,offsetX,offsetY) {
+	var complexNumberArray = createArray(WIDTH + 1, HEIGHT + 1);
+	var doesPointEscapeArray = createArray(WIDTH + 1, HEIGHT + 1);
 	console.log('====Drawing Set====');
 	console.log('c = ' + dispComplex(c));
 	setState(1);
@@ -138,9 +199,9 @@ function plotJuliaSet(canvasID, width, height, c, start, stepsize) {
 			ITERALGO = burningShip;
 			break;
 	}
-	for (var x = 0; x <= width; x++) {
-		for (var y = 0; y <= height; y++) {
-			complexNumberArray[x][y] = new coordsToComplex({x:x,y:y});
+	for (var x = 0; x <= WIDTH; x++) {
+		for (var y = 0; y <= HEIGHT; y++) {
+			complexNumberArray[x][y] = new coordsToComplex({x:x+offsetX,y:y+offsetY});
 			doesPointEscapeArray[x][y] = doesPointEscape(c, complexNumberArray[x][y]);
 			if (doesPointEscapeArray[x][y] >= 0) {01
 				drawPointOnCanvas(x, y, getColor(doesPointEscapeArray[x][y]));
@@ -156,8 +217,8 @@ function plotJuliaSet(canvasID, width, height, c, start, stepsize) {
 
 function coordsToComplex(coordinates) {
 	return {
-		real: (coordinates.x/WIDTH)*4 - 2,
-		imaginary: (coordinates.y/HEIGHT)*-4 + 2
+		real: ((coordinates.x/WIDTH)*4 - 2)*SCALEFACTOR,
+		imaginary: ((coordinates.y/HEIGHT)*-4 + 2)*SCALEFACTOR
 	};
 }
 
@@ -196,9 +257,6 @@ function handleConvergence() {
 	var box = document.getElementById('drawLines');
 	var drawc;
 	if (box.checked) {
-		_CANVAS.addEventListener('mousemove', function(evt) {
-			mousePos = getMousePos(_CANVAS, evt);
-		}, false);
 		drawc = setInterval(drawConvergence, 10);
 	} else {
 		clearInterval(drawc);
@@ -209,7 +267,7 @@ function defaultDraw() {
 	CONTEXT.clearRect(0, 0, WIDTH, HEIGHT);
 	var start = new complexNum(-2, 2);
 	var c = new complexNum(0, 0);
-	plotJuliaSet(CANVASID, WIDTH, HEIGHT, c, start, 2 / 350);
+	plotJuliaSet(CANVASID, c, 0, 0);
 }
 
 function drawJulia() {
@@ -217,5 +275,8 @@ function drawJulia() {
 	CONTEXT.clearRect(0, 0, WIDTH, HEIGHT);
 	var start = new complexNum(-2, 2);
 	var c = new complexNum(readInput('realValue') * 1, readInput('imagValue') * 1);
-	plotJuliaSet(CANVASID, WIDTH, HEIGHT, c, start, 2 / 350);
+	CURRENTXOFFSET = 0;
+	CURRENTYOFFSET = 0;
+	SCALEFACTOR = 1;
+	plotJuliaSet(CANVASID, c,0,0);
 }
