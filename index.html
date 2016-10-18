@@ -1,0 +1,61 @@
+<!doctype html> <html>
+
+<head> <title> Julia Set Viewer </title>
+	<style>
+		.desc {
+			float: right;
+			width: 300px;
+		}
+		#juliaDraw {
+			border: 1px dotted;
+			float: left;
+		}
+		.canvasWrapper canvas {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	</style > </head>
+<body>
+	<div class="desc">
+		<h1>Julia Set Viewer</h1> <p> You can view Julia sets with this simple online tool.Don 't know what a Julia set is? Learn about it <a href="https://www.youtube.com/watch?v=2AZYZ-L8m9Q">here.</a>
+			This script uses a complex number library that I built to handle the arithmetic required to process these images. The source code is hosted on my <a href="https://github.com/jamjar919">github.</a>
+			Numbers between -1 and 1 make the best images.
+		</p>
+		<form>
+			<label>Real:
+				<input type="text" id="realValue" value="0">
+			</label> <br>
+			<label>Imag:
+				<input type="text" id="imagValue" value="0">
+			</label> 
+			<script>
+				function randomFractal() {
+					document.getElementById("realValue").value = Math.random()*2 -1;
+					document.getElementById("imagValue").value = Math.random()*2 -1;
+				}
+				randomFractal();
+			</script>
+			<br>
+			<label>Draw convergence paths:<input type="checkbox" id="drawLines" onClick="handleConvergence()"></label><br>
+			<label> Iteration equation; <br>
+				<input type="radio" name="iterEq" value="1" checked> z^2 + c<br>
+				<input type="radio" name="iterEq" value="2"> z^3 + c<br>
+				<input type="radio" name="iterEq" value="3"> z^2 + cz + c <br>
+				<input type="radio" name="iterEq" value="4"> (|real(z)| + i*|imag(z)|)^2 + c (Burning Ship) <br>
+			</label>
+			<input type="button" onClick="drawJulia()" value="Draw">
+			<input type="button" onClick="randomFractal(); drawJulia();" value="Random">
+		</form>
+		<br>
+		<p id="status" style="color: grey;">Idle</p>
+	</div>
+	<div class="canvasWrapper">
+		<canvas id="juliaDraw" width=750 height=750 onClick="drawZoomJulia()"></canvas>
+		<canvas id="overlay" width=750 height=750></canvas>
+	</div>
+	<script src="complex.js"></script>
+	<script src="juliaset.js"></script>
+</body>
+
+</html>
