@@ -52,6 +52,12 @@
 		<p>Drawn from <span id="fromNum"></span> to <span id="toNum"></span></p>
 		<p>Current mouse pos: <span id="xyPos"></span></p>
 		<p>Current mouse x,y: <span id="xyCoords"></span></p>
+		<div id="selectionInfo" style="display:none;">
+			<p>Selected from</p>
+			<p id="fromSelection"></p>
+			<p>to</p>
+			<p id="toSelection"></p>
+		</div>
 	</div>
 	<div class="canvasWrapper">
 		<canvas id="juliaDraw" width=750 height=750 onClick="drawZoomJulia()"></canvas>

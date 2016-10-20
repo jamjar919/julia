@@ -16,6 +16,10 @@ function multComplex(c1, c2) {
 	return new complexNum(real,imaginary);
 }
 
+function scalarComplex(s, c) {
+	return new complexNum(c.real*s, c.imaginary*s);
+}
+
 function absComplex(c) {
 	return new complexNum(Math.abs(c.real),Math.abs(c.imaginary));
 }
@@ -25,7 +29,7 @@ function dispComplex(c) {
 	if (c.imaginary >= 0) {
 		sign = '+';
 	}
-	return Math.floor(c.real*1000)/1000 + sign + Math.floor(c.imaginary*1000)/1000 + "i";
+	return Math.floor(c.real*10000)/10000 + sign + Math.floor(c.imaginary*10000)/10000 + "i";
 }
 
 function getComplexModulus(c) {

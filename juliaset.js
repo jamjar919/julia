@@ -13,16 +13,13 @@ var juliaImageData = CONTEXT.createImageData(WIDTH, HEIGHT);
 var CURRENTHIGHESTITERATIONS = 0;
 var CONVERGENCEITERCOUNT = 2500;
 var ITERALGO;
-var SCALEFACTOR = 1;
-var CURRENTXOFFSET = 0;
-var CURRENTYOFFSET = 0;
+var STARTPOS;
+var RANGE;
 _CANVAS.addEventListener('mousemove', function(evt) {
 	mousePos = getMousePos(_CANVAS, evt);
 }, false);
 
 function printCoords() {
-	document.getElementById("fromNum").innerHTML = dispComplex(coordsToComplex({x:0,y:0}));
-	document.getElementById("toNum").innerHTML = dispComplex(coordsToComplex({x:WIDTH,y:HEIGHT}));
 	document.getElementById("xyPos").innerHTML = dispComplex(coordsToComplex(mousePos));
 	document.getElementById("xyCoords").innerHTML = mousePos.x + "," + mousePos.y;
 }
@@ -128,6 +125,7 @@ function drawBoundingBox() {
 		} else {
 			difference = mousePos.y - point1.y;
 		}
+		document.getElementById("toSelection").innerHTML = dispComplex(coordsToComplex({x:point1.x+difference,y:point1.y+difference}));
 		_CONTEXT.beginPath();
 		_CONTEXT.rect(point1.x,point1.y,difference,difference);
 		_CONTEXT.stroke();
@@ -148,16 +146,18 @@ _CANVAS.addEventListener('contextmenu', function(ev) {
 			x: point1.x + difference,
 			y: point1.y + difference
 		}
-		CURRENTXOFFSET = point1.x - difference;
-		CURRENTYOFFSET = point1.y - difference;
-		SCALEFACTOR = (difference/WIDTH)*SCALEFACTOR;
-		var c = new complexNum(readInput('realValue') * 1, readInput('imagValue') * 1,point1.x,point1.y);
-		plotJuliaSet(CANVAS, c, CURRENTXOFFSET, CURRENTYOFFSET);
+		STARTPOS = coordsToComplex(point1);
+		RANGE = coordsToComplex(point2).real - coordsToComplex(point1).real;
+		var c = new complexNum(readInput('realValue') * 1, readInput('imagValue') * 1);
+		plotJuliaSet(CANVAS, c, point1);
 		drawSelectSquare = false;
+		document.getElementById("selectionInfo").style.display = "none";
 	} else{
 		point1 = mousePos;
 		drawSelectSquare = true;
 		drawSelectSquareInterval = setInterval(drawBoundingBox, 10);
+		document.getElementById("selectionInfo").style.display = "block";
+		document.getElementById("fromSelection").innerHTML = dispComplex(coordsToComplex(point1));
 	}
    	console.log(mousePos);
   	return false;
@@ -178,7 +178,7 @@ function getColor(iterations) {
 	return color;
 }
 
-function plotJuliaSet(canvasID, c,offsetX,offsetY) {
+function plotJuliaSet(canvasID, c,o) {
 	var complexNumberArray = createArray(WIDTH + 1, HEIGHT + 1);
 	var doesPointEscapeArray = createArray(WIDTH + 1, HEIGHT + 1);
 	console.log('====Drawing Set====');
@@ -199,11 +199,16 @@ function plotJuliaSet(canvasID, c,offsetX,offsetY) {
 			ITERALGO = burningShip;
 			break;
 	}
+	console.log("Starting at "+dispComplex(STARTPOS));
+	console.log("Range: "+RANGE);
+	document.getElementById("fromNum").innerHTML = dispComplex(coordsToComplex({x:0,y:0}));
+	document.getElementById("toNum").innerHTML = dispComplex(coordsToComplex({x:WIDTH,y:HEIGHT}));
 	for (var x = 0; x <= WIDTH; x++) {
 		for (var y = 0; y <= HEIGHT; y++) {
-			complexNumberArray[x][y] = new coordsToComplex({x:x+offsetX,y:y+offsetY});
+			complexNumberArray[x][y] = new coordsToComplex({x:x,y:y});
+			complexNumberArray[x][y] = complexNumberArray[x][y];
 			doesPointEscapeArray[x][y] = doesPointEscape(c, complexNumberArray[x][y]);
-			if (doesPointEscapeArray[x][y] >= 0) {01
+			if (doesPointEscapeArray[x][y] >= 0) {
 				drawPointOnCanvas(x, y, getColor(doesPointEscapeArray[x][y]));
 			} else {
 				drawPointOnCanvas(x, y, 'black');
@@ -217,15 +222,15 @@ function plotJuliaSet(canvasID, c,offsetX,offsetY) {
 
 function coordsToComplex(coordinates) {
 	return {
-		real: ((coordinates.x/WIDTH)*4 - 2)*SCALEFACTOR,
-		imaginary: ((coordinates.y/HEIGHT)*-4 + 2)*SCALEFACTOR
+		real: ((coordinates.x/WIDTH)*RANGE +STARTPOS.real),
+		imaginary: ((coordinates.y/HEIGHT)*-RANGE + STARTPOS.imaginary)
 	};
 }
 
 function complexToCoords(c) {
 	return {
-		x: ((c.real + 2)/4)*WIDTH,
-		y: ((c.imaginary - 2)/-4)*HEIGHT
+		x: ((c.real - STARTPOS.real)/(RANGE))*WIDTH,
+		y: ((c.imaginary - STARTPOS.imaginary)/-(RANGE))*HEIGHT
 	};
 }
 
@@ -267,7 +272,7 @@ function defaultDraw() {
 	CONTEXT.clearRect(0, 0, WIDTH, HEIGHT);
 	var start = new complexNum(-2, 2);
 	var c = new complexNum(0, 0);
-	plotJuliaSet(CANVASID, c, 0, 0);
+	plotJuliaSet(CANVASID, c, 0);
 }
 
 function drawJulia() {
@@ -275,8 +280,7 @@ function drawJulia() {
 	CONTEXT.clearRect(0, 0, WIDTH, HEIGHT);
 	var start = new complexNum(-2, 2);
 	var c = new complexNum(readInput('realValue') * 1, readInput('imagValue') * 1);
-	CURRENTXOFFSET = 0;
-	CURRENTYOFFSET = 0;
-	SCALEFACTOR = 1;
-	plotJuliaSet(CANVASID, c,0,0);
+	STARTPOS = {real:-2,imaginary:2}
+	RANGE = 4;
+	plotJuliaSet(CANVASID, c,{x:0,y:0});
 }
