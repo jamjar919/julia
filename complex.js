@@ -4,6 +4,13 @@ function complexNum(real, imaginary) {
 	return this;
 }
 
+function raiseNumberToComplexPower(x, c) {
+	var s = Math.pow(x,c.real);
+	var pow = c.imaginary*Math.log(x);
+	var num = new complexNum(Math.cos(pow),Math.sin(pow));
+	return scalarComplex(s, num);
+}
+
 function addComplex(c1, c2) {
 	var real = c1.real + c2.real;
 	var imaginary = c1.imaginary + c2.imaginary;

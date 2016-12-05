@@ -9,7 +9,6 @@ var _CONTEXT = document.getElementById("overlay").getContext('2d');
 var HEIGHT = 750;
 var WIDTH = 750;
 var mousePos;
-var juliaImageData = CONTEXT.createImageData(WIDTH, HEIGHT);
 var CURRENTHIGHESTITERATIONS = 0;
 var CONVERGENCEITERCOUNT = 2500;
 var ITERALGO;
@@ -88,6 +87,11 @@ function cubed(complexNum, c) {
 function quadratic(complexNum, c) {
 	// z^2 + cz + c
 	return addComplex(addComplex(multComplex(complexNum, complexNum),multComplex(c, complexNum)), c);
+}
+
+function exponential(complexNum, c) {
+	// e^z + c
+	return addComplex(raiseNumberToComplexPower(Math.E, complexNum), c);
 }
 
 function burningShip(complexNum, c) {
@@ -173,12 +177,12 @@ function getMousePos(canvas, evt) {
 
 function getColor(iterations) {
 	//console.log("Iterations: "+getBaseLog(iterations+1,255));
-	var color = "rgb("+Math.floor((8*iterations)%255)+",0,"+Math.floor(255-((8*iterations)%255))+")";
+	var color = "rgb("+Math.floor((8*iterations)%255)+","+Math.floor(2*iterations%255)+","+Math.floor(255-((8*iterations)%255))+")";
 	//console.log(color);
 	return color;
 }
 
-function plotJuliaSet(canvasID, c,o) {
+function plotJuliaSet(canvasID, c) {
 	var complexNumberArray = createArray(WIDTH + 1, HEIGHT + 1);
 	var doesPointEscapeArray = createArray(WIDTH + 1, HEIGHT + 1);
 	console.log('====Drawing Set====');
@@ -188,16 +192,27 @@ function plotJuliaSet(canvasID, c,o) {
 	switch(value) {
 		case "1":
 			ITERALGO = squared;
+			BOUNDARY = 4;
 			break;
 		case "2":
 			ITERALGO = cubed;
+			BOUNDARY = 4;
 			break;
 		case "3": 
 			ITERALGO = quadratic;
+			BOUNDARY = 4;
 			break;
 		case "4":
 			ITERALGO = burningShip;
+			BOUNDARY = 10;
 			break;
+		case "5":
+			ITERALGO = exponential;
+			BOUNDARY = 10000;	
+			break;
+	}
+	if (document.getElementById("applyAdvanced").checked) {
+		BOUNDARY = parseInt(document.getElementById("boundary").value);
 	}
 	console.log("Starting at "+dispComplex(STARTPOS));
 	console.log("Range: "+RANGE);
@@ -272,7 +287,7 @@ function defaultDraw() {
 	CONTEXT.clearRect(0, 0, WIDTH, HEIGHT);
 	var start = new complexNum(-2, 2);
 	var c = new complexNum(0, 0);
-	plotJuliaSet(CANVASID, c, 0);
+	plotJuliaSet(CANVASID, c);
 }
 
 function drawJulia() {
@@ -282,5 +297,10 @@ function drawJulia() {
 	var c = new complexNum(readInput('realValue') * 1, readInput('imagValue') * 1);
 	STARTPOS = {real:-2,imaginary:2}
 	RANGE = 4;
-	plotJuliaSet(CANVASID, c,{x:0,y:0});
+	if (document.getElementById("applyAdvanced").checked) {
+		RANGE = parseInt(document.getElementById("range").value)
+		STARTPOS = new complexNum(parseInt(document.getElementById("startposreal").value), parseInt(document.getElementById("startposimag").value));
+		MAXITERATION = parseInt(document.getElementById("maxiteration").value);
+	}
+	plotJuliaSet(CANVASID, c);
 }

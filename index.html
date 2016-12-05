@@ -35,6 +35,21 @@
 					document.getElementById("imagValue").value = Math.random()*2 -1;
 				}
 				randomFractal();
+				function resetDefaultAdvancedOptions() {
+					document.getElementById("range").value = "4";
+					document.getElementById("startposreal").value = "-2";
+					document.getElementById("startposimag").value = "2";
+					document.getElementById("maxiteration").value = "2500"
+					document.getElementById("boundary").value = "4";
+				}
+				function toggleAdvancedDisplay() {
+					var container = document.getElementById("advancedOptions");
+					if (container.style.display == "none") {
+						container.style.display = "block"
+					} else {
+						container.style.display = "none"
+					}
+				}
 			</script>
 			<br>
 			<label>Draw convergence paths:<input type="checkbox" id="drawLines" onClick="handleConvergence()"></label><br>
@@ -43,6 +58,7 @@
 				<input type="radio" name="iterEq" value="2"> z^3 + c<br>
 				<input type="radio" name="iterEq" value="3"> z^2 + cz + c <br>
 				<input type="radio" name="iterEq" value="4"> (|real(z)| + i*|imag(z)|)^2 + c (Burning Ship) <br>
+				<input type="radio" name="iterEq" value="5"> e^z + c <br>
 			</label>
 			<input type="button" onClick="drawJulia()" value="Draw">
 			<input type="button" onClick="randomFractal(); drawJulia();" value="Random">
@@ -57,6 +73,17 @@
 			<p id="fromSelection"></p>
 			<p>to</p>
 			<p id="toSelection"></p>
+		</div>
+		<input type="button" onClick="toggleAdvancedDisplay();" value="Advanced">
+		<div id="advancedOptions" style="display:none">
+			<p>Advanced options are applied when you draw a new fractal.</p>
+			<label>Apply advanced options:<input type="checkbox" id="applyAdvanced"></label><br>
+			<label>RANGE:<input type="text" value="4" id="range"></label>
+			<label>STARTPOSREAL:<input type="text" value="-2" id="startposreal"></label>
+			<label>STARTPOSIMAG:<input type="text" value="2" id="startposimag"></label>
+			<label>MAXITERATION<input type="text" value="2500" id="maxiteration"></label>
+			<label>BOUNDARY<input type="text" value="4" id="boundary"></label>
+			<input type="button" value="Reset Defaults" onClick="resetDefaultAdvancedOptions();">
 		</div>
 	</div>
 	<div class="canvasWrapper">
